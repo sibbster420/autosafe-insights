@@ -7,7 +7,7 @@ export interface UploadResponse {
 }
 
 export interface SummarizeRequest {
-  file_id: string;
+  id: string;
   prompt?: string;
   caption_summarization_prompt?: string;
   summary_aggregation_prompt?: string;
@@ -54,7 +54,7 @@ export async function summarizeVideo(
   }
 ): Promise<SummarizeResponse> {
   const body: SummarizeRequest = {
-    file_id: fileId,
+    id: fileId,
   };
 
   if (prompts.prompt) {
