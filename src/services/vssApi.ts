@@ -11,6 +11,7 @@ export interface SummarizeRequest {
   prompt?: string;
   caption_summarization_prompt?: string;
   summary_aggregation_prompt?: string;
+  model?: string:
 }
 
 export interface SummarizeResponse {
