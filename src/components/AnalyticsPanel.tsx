@@ -1,5 +1,5 @@
 import { FileText } from "lucide-react";
-import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
 
 interface AnalyticsPanelProps {
   isAnalyzing: boolean;
@@ -49,9 +49,7 @@ export function AnalyticsPanel({ isAnalyzing, summary }: AnalyticsPanelProps) {
       {/* Summary Content */}
       <div className="bg-secondary/30 rounded-lg p-4 max-h-[400px] overflow-y-auto">
         <div className="prose prose-sm prose-invert max-w-none">
-          <pre className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90 font-sans">
-            {summary}
-          </pre>
+          <ReactMarkdown>{summary}</ReactMarkdown>
         </div>
       </div>
 
