@@ -82,5 +82,14 @@ export async function summarizeVideo(
     throw new Error(`Summarization failed: ${error}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Extract summary from OpenAI-style chat completions response
+  const summary = data.choices?.[0]?.message?.content || "";
+  
+  return {
+    summary,
+    file_id: fileId,
+    status: "completed",
+  };
 }
