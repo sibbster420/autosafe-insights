@@ -82,13 +82,5 @@ export async function summarizeVideo(
     throw new Error(`Summarization failed: ${error}`);
   }
 
-  const data = await response.json();
-  console.log('Raw VSS summarize response:', JSON.stringify(data, null, 2));
-  
-  // Map the response - try common field names for the summary
-  return {
-    summary: data.summary || data.content || data.text || data.result || data.response || '',
-    file_id: data.file_id || data.id || fileId,
-    status: data.status || 'completed',
-  };
+  return response.json();
 }
