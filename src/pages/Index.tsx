@@ -92,6 +92,8 @@ const Index = () => {
         captionSummarizationPrompt: captionSummarizationPrompt || undefined,
         summaryAggregationPrompt: summaryAggregationPrompt || undefined,
       });
+      console.log('Summarize response in Index:', response);
+      console.log('Summary value:', response.summary);
       setSummaryResult(response.summary);
       setAnalysisComplete(true);
       toast.success('Video summarization complete');
