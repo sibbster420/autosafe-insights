@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   onOpenSettings: () => void;
-  hasApiKey: boolean;
 }
 
-export function Header({ onOpenSettings, hasApiKey }: HeaderProps) {
+export function Header({ onOpenSettings }: HeaderProps) {
   return (
     <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
       <div className="container mx-auto px-6 h-16 flex items-center justify-between">
@@ -20,17 +19,9 @@ export function Header({ onOpenSettings, hasApiKey }: HeaderProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm">
-            <div className={`w-2 h-2 rounded-full ${hasApiKey ? 'bg-success animate-pulse' : 'bg-muted-foreground'}`} />
-            <span className="text-muted-foreground">
-              {hasApiKey ? 'API Connected' : 'API Not Configured'}
-            </span>
-          </div>
-          <Button variant="outline" size="icon" onClick={onOpenSettings}>
-            <Settings className="w-4 h-4" />
-          </Button>
-        </div>
+        <Button variant="outline" size="icon" onClick={onOpenSettings}>
+          <Settings className="w-4 h-4" />
+        </Button>
       </div>
     </header>
   );
