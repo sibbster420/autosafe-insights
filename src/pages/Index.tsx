@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { SettingsModal } from "@/components/SettingsModal";
 import { UploadZone } from "@/components/UploadZone";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { AnalyticsPanel } from "@/components/AnalyticsPanel";
@@ -15,8 +14,6 @@ import { uploadVideo, summarizeVideo } from "@/services/vssApi";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [apiKey, setApiKey] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -29,23 +26,6 @@ const Index = () => {
   const [summaryAggregationPrompt, setSummaryAggregationPrompt] = useState("");
   const [fileId, setFileId] = useState<string | null>(null);
   const [summaryResult, setSummaryResult] = useState<string | null>(null);
-
-  // Load API key from localStorage on mount
-  useEffect(() => {
-    const savedKey = localStorage.getItem('video-analytics-api-key');
-    if (savedKey) {
-      setApiKey(savedKey);
-    }
-  }, []);
-
-  const handleSaveApiKey = (key: string) => {
-    setApiKey(key);
-    if (key) {
-      localStorage.setItem('video-analytics-api-key', key);
-    } else {
-      localStorage.removeItem('video-analytics-api-key');
-    }
-  };
 
   const handleFilesSelect = (files: File[]) => {
     setSelectedFiles(prev => [...prev, ...files]);
@@ -117,7 +97,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onOpenSettings={() => setSettingsOpen(true)} />
+      <Header />
       
       <main className="container mx-auto px-6 py-8">
         {/* Upload Section */}
@@ -284,12 +264,6 @@ const Index = () => {
         )}
       </main>
 
-      <SettingsModal
-        open={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        apiKey={apiKey}
-        onSaveApiKey={handleSaveApiKey}
-      />
     </div>
   );
 };

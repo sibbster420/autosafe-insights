@@ -1,11 +1,6 @@
-import { Settings, Shield } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Shield } from "lucide-react";
 
-interface HeaderProps {
-  onOpenSettings: () => void;
-}
-
-export function Header({ onOpenSettings }: HeaderProps) {
+export function Header() {
   return (
     <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
       <div className="container mx-auto px-6 h-16 flex items-center justify-between">
@@ -18,10 +13,6 @@ export function Header({ onOpenSettings }: HeaderProps) {
             <p className="text-xs text-muted-foreground">Video Analytics Dashboard</p>
           </div>
         </div>
-
-        <Button variant="outline" size="icon" onClick={onOpenSettings}>
-          <Settings className="w-4 h-4" />
-        </Button>
       </div>
     </header>
   );
