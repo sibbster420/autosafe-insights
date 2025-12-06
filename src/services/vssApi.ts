@@ -22,6 +22,8 @@ export interface SummarizeResponse {
 export async function uploadVideo(file: File): Promise<UploadResponse> {
   const formData = new FormData();
   formData.append('file', file);
+  formData.append('purpose', 'vision');
+  formData.append('media_type', 'video');
 
   const response = await fetch(`${API_BASE}/files`, {
     method: 'POST',
