@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { SettingsModal } from "@/components/SettingsModal";
 import { UploadZone } from "@/components/UploadZone";
@@ -6,9 +7,10 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { AnalyticsPanel } from "@/components/AnalyticsPanel";
 import { CategoryToggle } from "@/components/CategoryToggle";
 import { Button } from "@/components/ui/button";
-import { Play, RotateCcw, ArrowRight } from "lucide-react";
+import { Play, RotateCcw, ArrowRight, Library } from "lucide-react";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -77,7 +79,7 @@ const Index = () => {
         {/* Upload Section */}
         {!showAnalysis && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
-            <div className="text-center mb-8">
+          <div className="text-center mb-8">
               <h2 className="text-3xl font-bold mb-2">
                 Analyze <span className="text-gradient">Safety Incidents</span>
               </h2>
@@ -85,7 +87,19 @@ const Index = () => {
                 Upload dashcam or surveillance footage to detect crashes and near-miss events
               </p>
             </div>
-            <UploadZone 
+            
+            <div className="flex justify-center mb-6">
+              <Button 
+                variant="outline" 
+                onClick={() => navigate("/library")}
+                className="gap-2"
+              >
+                <Library className="w-4 h-4" />
+                Browse Video Library
+              </Button>
+            </div>
+
+            <UploadZone
               onFilesSelect={handleFilesSelect}
               selectedFiles={selectedFiles}
               onRemoveFile={handleRemoveFile}
