@@ -33,7 +33,9 @@ const generateMockVideos = (): VideoFile[] => {
       category: isCrash ? "crash" : "near-miss",
       duration: `${Math.floor(Math.random() * 3) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
       date: `2024-${month}-${day}`,
-      thumbnail: `https://picsum.photos/seed/${i}/320/180`,
+      thumbnail: isCrash 
+        ? `https://loremflickr.com/320/180/car,crash?lock=${i}` 
+        : `https://loremflickr.com/320/180/car,traffic?lock=${i}`,
     });
   }
   
