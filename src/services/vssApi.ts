@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+const API_BASE = "/api";
 
 export interface UploadResponse {
   file_id: string;
@@ -21,12 +21,12 @@ export interface SummarizeResponse {
 
 export async function uploadVideo(file: File): Promise<UploadResponse> {
   const formData = new FormData();
-  formData.append('file', file);
-  formData.append('purpose', 'vision');
-  formData.append('media_type', 'video');
+  formData.append("file", file);
+  formData.append("purpose", "vision");
+  formData.append("media_type", "video");
 
   const response = await fetch(`${API_BASE}/files`, {
-    method: 'POST',
+    method: "POST",
     body: formData,
   });
 
@@ -36,12 +36,12 @@ export async function uploadVideo(file: File): Promise<UploadResponse> {
   }
 
   const data = await response.json();
-  
+
   // Map VSS API response (uses "id") to our expected format (uses "file_id")
   return {
     file_id: data.id,
     filename: data.filename,
-    status: data.status || 'uploaded',
+    status: data.status || "uploaded",
   };
 }
 
@@ -51,10 +51,11 @@ export async function summarizeVideo(
     prompt?: string;
     captionSummarizationPrompt?: string;
     summaryAggregationPrompt?: string;
-  }
+  },
 ): Promise<SummarizeResponse> {
   const body: SummarizeRequest = {
     id: fileId,
+    model: "cosmos-reason1",
   };
 
   if (prompts.prompt) {
@@ -68,9 +69,9 @@ export async function summarizeVideo(
   }
 
   const response = await fetch(`${API_BASE}/summarize`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
   });
