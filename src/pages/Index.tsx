@@ -7,6 +7,8 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { AnalyticsPanel } from "@/components/AnalyticsPanel";
 import { CategoryToggle } from "@/components/CategoryToggle";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Play, RotateCcw, ArrowRight, Library } from "lucide-react";
 
 const Index = () => {
@@ -19,6 +21,9 @@ const Index = () => {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [category, setCategory] = useState<'crash' | 'near-miss'>('crash');
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [prompt, setPrompt] = useState("");
+  const [captionSummarizationPrompt, setCaptionSummarizationPrompt] = useState("");
+  const [summaryAggregationPrompt, setSummaryAggregationPrompt] = useState("");
 
   // Load API key from localStorage on mount
   useEffect(() => {
@@ -164,6 +169,46 @@ const Index = () => {
                   <RotateCcw className="w-4 h-4" />
                   New Upload
                 </Button>
+              </div>
+            </div>
+
+            {/* Prompt Text Boxes */}
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="prompt" className="text-sm font-medium text-foreground">
+                  Prompt
+                </Label>
+                <Textarea
+                  id="prompt"
+                  placeholder="Enter your analysis prompt..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="min-h-[100px] bg-card/50 border-border/50 resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="captionSummarizationPrompt" className="text-sm font-medium text-foreground">
+                  Caption Summarization Prompt
+                </Label>
+                <Textarea
+                  id="captionSummarizationPrompt"
+                  placeholder="Enter caption summarization prompt..."
+                  value={captionSummarizationPrompt}
+                  onChange={(e) => setCaptionSummarizationPrompt(e.target.value)}
+                  className="min-h-[100px] bg-card/50 border-border/50 resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="summaryAggregationPrompt" className="text-sm font-medium text-foreground">
+                  Summary Aggregation Prompt
+                </Label>
+                <Textarea
+                  id="summaryAggregationPrompt"
+                  placeholder="Enter summary aggregation prompt..."
+                  value={summaryAggregationPrompt}
+                  onChange={(e) => setSummaryAggregationPrompt(e.target.value)}
+                  className="min-h-[100px] bg-card/50 border-border/50 resize-none"
+                />
               </div>
             </div>
 
