@@ -9,7 +9,9 @@ import { CategoryToggle } from "@/components/CategoryToggle";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Play, RotateCcw, ArrowRight, Library } from "lucide-react";
+import { Play, RotateCcw, ArrowRight, Library, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { uploadVideo, summarizeVideo } from "@/services/vssApi";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -18,12 +20,15 @@ const Index = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [category, setCategory] = useState<'crash' | 'near-miss'>('crash');
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [captionSummarizationPrompt, setCaptionSummarizationPrompt] = useState("");
   const [summaryAggregationPrompt, setSummaryAggregationPrompt] = useState("");
+  const [fileId, setFileId] = useState<string | null>(null);
+  const [summaryResult, setSummaryResult] = useState<string | null>(null);
 
   // Load API key from localStorage on mount
   useEffect(() => {
@@ -50,20 +55,52 @@ const Index = () => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleProceedToAnalysis = () => {
-    setShowAnalysis(true);
-    setCurrentFileIndex(0);
-    setIsAnalyzing(false);
-    setAnalysisComplete(false);
+  const handleProceedToAnalysis = async () => {
+    if (selectedFiles.length === 0) return;
+    
+    setIsUploading(true);
+    try {
+      const file = selectedFiles[currentFileIndex];
+      const response = await uploadVideo(file);
+      setFileId(response.file_id);
+      setShowAnalysis(true);
+      setCurrentFileIndex(0);
+      setIsAnalyzing(false);
+      setAnalysisComplete(false);
+      setSummaryResult(null);
+      toast.success(`Video uploaded successfully: ${response.file_id}`);
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to upload video');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handleAnalyze = () => {
+  const handleSummarize = async () => {
+    if (!fileId) {
+      toast.error('No video uploaded. Please upload a video first.');
+      return;
+    }
+
     setIsAnalyzing(true);
-    // Simulate analysis
-    setTimeout(() => {
-      setIsAnalyzing(false);
+    setSummaryResult(null);
+    
+    try {
+      const response = await summarizeVideo(fileId, {
+        prompt: prompt || undefined,
+        captionSummarizationPrompt: captionSummarizationPrompt || undefined,
+        summaryAggregationPrompt: summaryAggregationPrompt || undefined,
+      });
+      setSummaryResult(response.summary);
       setAnalysisComplete(true);
-    }, 3000);
+      toast.success('Video summarization complete');
+    } catch (error) {
+      console.error('Summarization error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to summarize video');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleReset = () => {
@@ -72,6 +109,8 @@ const Index = () => {
     setIsAnalyzing(false);
     setAnalysisComplete(false);
     setShowAnalysis(false);
+    setFileId(null);
+    setSummaryResult(null);
   };
 
   const currentFile = selectedFiles[currentFileIndex];
@@ -116,10 +155,20 @@ const Index = () => {
                   variant="glow" 
                   size="lg"
                   onClick={handleProceedToAnalysis}
+                  disabled={isUploading}
                   className="gap-2"
                 >
-                  Proceed to Analysis
-                  <ArrowRight className="w-4 h-4" />
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      Proceed to Analysis
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </Button>
               </div>
             )}
@@ -138,17 +187,23 @@ const Index = () => {
                     Video {currentFileIndex + 1} of {selectedFiles.length}
                   </span>
                 )}
+                {fileId && (
+                  <span className="text-xs text-muted-foreground font-mono bg-secondary/50 px-2 py-1 rounded">
+                    ID: {fileId}
+                  </span>
+                )}
               </div>
               
               <div className="flex items-center gap-3">
                 {!isAnalyzing && !analysisComplete && (
                   <Button 
                     variant="glow" 
-                    onClick={handleAnalyze}
+                    onClick={handleSummarize}
+                    disabled={!fileId}
                     className="gap-2"
                   >
                     <Play className="w-4 h-4" />
-                    Start Analysis
+                    Summarize
                   </Button>
                 )}
                 {analysisComplete && currentFileIndex < selectedFiles.length - 1 && (
@@ -158,6 +213,7 @@ const Index = () => {
                       setCurrentFileIndex(prev => prev + 1);
                       setIsAnalyzing(false);
                       setAnalysisComplete(false);
+                      setSummaryResult(null);
                     }}
                     className="gap-2"
                   >
@@ -220,18 +276,7 @@ const Index = () => {
               <div className="lg:col-span-2">
                 <AnalyticsPanel 
                   isAnalyzing={isAnalyzing}
-                  data={analysisComplete ? {
-                    category,
-                    confidence: category === 'crash' ? 94.7 : 87.3,
-                    timestamp: '00:03:24',
-                    speed: category === 'crash' ? 67 : 45,
-                    location: 'Highway I-95, Mile 142',
-                    vehicleCount: category === 'crash' ? 3 : 2,
-                    severity: category === 'crash' ? 'high' : 'medium',
-                    description: category === 'crash' 
-                      ? 'Rear-end collision detected. Three vehicles involved. Emergency response recommended.'
-                      : 'Close call detected. Vehicle performed sudden lane change causing evasive maneuver by adjacent vehicle.',
-                  } : null}
+                  summary={summaryResult}
                 />
               </div>
             </div>
