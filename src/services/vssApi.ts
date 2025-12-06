@@ -35,7 +35,14 @@ export async function uploadVideo(file: File): Promise<UploadResponse> {
     throw new Error(`Upload failed: ${error}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Map VSS API response (uses "id") to our expected format (uses "file_id")
+  return {
+    file_id: data.id,
+    filename: data.filename,
+    status: data.status || 'uploaded',
+  };
 }
 
 export async function summarizeVideo(
