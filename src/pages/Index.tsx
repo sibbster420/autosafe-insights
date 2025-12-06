@@ -6,15 +6,17 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { AnalyticsPanel } from "@/components/AnalyticsPanel";
 import { CategoryToggle } from "@/components/CategoryToggle";
 import { Button } from "@/components/ui/button";
-import { Play, RotateCcw } from "lucide-react";
+import { Play, RotateCcw, ArrowRight } from "lucide-react";
 
 const Index = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [category, setCategory] = useState<'crash' | 'near-miss'>('crash');
+  const [showAnalysis, setShowAnalysis] = useState(false);
 
   // Load API key from localStorage on mount
   useEffect(() => {
@@ -33,14 +35,17 @@ const Index = () => {
     }
   };
 
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-    setIsAnalyzing(false);
-    setAnalysisComplete(false);
+  const handleFilesSelect = (files: File[]) => {
+    setSelectedFiles(prev => [...prev, ...files]);
   };
 
-  const handleClearFile = () => {
-    setSelectedFile(null);
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleProceedToAnalysis = () => {
+    setShowAnalysis(true);
+    setCurrentFileIndex(0);
     setIsAnalyzing(false);
     setAnalysisComplete(false);
   };
@@ -55,10 +60,14 @@ const Index = () => {
   };
 
   const handleReset = () => {
-    setSelectedFile(null);
+    setSelectedFiles([]);
+    setCurrentFileIndex(0);
     setIsAnalyzing(false);
     setAnalysisComplete(false);
+    setShowAnalysis(false);
   };
+
+  const currentFile = selectedFiles[currentFileIndex];
 
   return (
     <div className="min-h-screen bg-background">
@@ -66,7 +75,7 @@ const Index = () => {
       
       <main className="container mx-auto px-6 py-8">
         {/* Upload Section */}
-        {!selectedFile && (
+        {!showAnalysis && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold mb-2">
@@ -77,49 +86,84 @@ const Index = () => {
               </p>
             </div>
             <UploadZone 
-              onFileSelect={handleFileSelect}
-              selectedFile={selectedFile}
-              onClearFile={handleClearFile}
+              onFilesSelect={handleFilesSelect}
+              selectedFiles={selectedFiles}
+              onRemoveFile={handleRemoveFile}
             />
+            
+            {selectedFiles.length > 0 && (
+              <div className="flex justify-center pt-4">
+                <Button 
+                  variant="glow" 
+                  size="lg"
+                  onClick={handleProceedToAnalysis}
+                  disabled={!apiKey}
+                  className="gap-2"
+                >
+                  Proceed to Analysis
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+            
+            {selectedFiles.length > 0 && !apiKey && (
+              <p className="text-center text-sm text-warning">
+                Configure your API key in settings to proceed
+              </p>
+            )}
           </div>
         )}
 
         {/* Analysis Section */}
-        {selectedFile && (
+        {showAnalysis && currentFile && (
           <div className="space-y-6 animate-fade-in">
             {/* Controls */}
             <div className="flex items-center justify-between flex-wrap gap-4">
-              <CategoryToggle category={category} onCategoryChange={setCategory} />
+              <div className="flex items-center gap-4">
+                <CategoryToggle category={category} onCategoryChange={setCategory} />
+                {selectedFiles.length > 1 && (
+                  <span className="text-sm text-muted-foreground">
+                    Video {currentFileIndex + 1} of {selectedFiles.length}
+                  </span>
+                )}
+              </div>
               
               <div className="flex items-center gap-3">
                 {!isAnalyzing && !analysisComplete && (
                   <Button 
                     variant="glow" 
                     onClick={handleAnalyze}
-                    disabled={!apiKey}
                     className="gap-2"
                   >
                     <Play className="w-4 h-4" />
                     Start Analysis
                   </Button>
                 )}
+                {analysisComplete && currentFileIndex < selectedFiles.length - 1 && (
+                  <Button 
+                    variant="default"
+                    onClick={() => {
+                      setCurrentFileIndex(prev => prev + 1);
+                      setIsAnalyzing(false);
+                      setAnalysisComplete(false);
+                    }}
+                    className="gap-2"
+                  >
+                    Next Video
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                )}
                 <Button variant="outline" onClick={handleReset} className="gap-2">
                   <RotateCcw className="w-4 h-4" />
-                  New Video
+                  New Upload
                 </Button>
               </div>
             </div>
 
-            {!apiKey && (
-              <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 text-warning text-sm">
-                Please configure your API key in settings to enable video analysis.
-              </div>
-            )}
-
             {/* Video + Analytics Grid */}
             <div className="grid lg:grid-cols-5 gap-6">
               <div className="lg:col-span-3">
-                <VideoPlayer file={selectedFile} />
+                <VideoPlayer file={currentFile} />
               </div>
               <div className="lg:col-span-2">
                 <AnalyticsPanel 
