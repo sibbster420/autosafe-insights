@@ -79,7 +79,7 @@ const Index = () => {
         {/* Upload Section */}
         {!showAnalysis && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
-            <div className="text-center mb-8">
+          <div className="text-center mb-8">
               <h2 className="text-3xl font-bold mb-2">
                 Analyze <span className="text-gradient">Safety Incidents</span>
               </h2>
