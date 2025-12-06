@@ -97,19 +97,12 @@ const Index = () => {
                   variant="glow" 
                   size="lg"
                   onClick={handleProceedToAnalysis}
-                  disabled={!apiKey}
                   className="gap-2"
                 >
                   Proceed to Analysis
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
-            )}
-            
-            {selectedFiles.length > 0 && !apiKey && (
-              <p className="text-center text-sm text-warning">
-                Configure your API key in settings to proceed
-              </p>
             )}
           </div>
         )}
